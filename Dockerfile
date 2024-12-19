@@ -4,7 +4,7 @@ FROM nginx:alpine
 # Remove the existing html files
 RUN rm -rf /usr/share/nginx/html/*
 
-# copy the build files
+# copy the build files from repo to container
 COPY . /usr/share/nginx/html/
 
 # Copy custom Nginx configuration file
