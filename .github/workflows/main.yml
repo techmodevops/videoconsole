@@ -55,6 +55,7 @@ jobs:
     
     - name: Deploy to dev Environment
       run: |
+          sed -i "s|\${COMMIT_ID}|$COMMIT_ID|g" k8s/dev_deployment.yml
           kubectl --insecure-skip-tls-verify apply -f k8s/dev_deployment.yml
               
     - name: Wait for 3 minutes
