@@ -63,6 +63,6 @@ jobs:
 
     - name: Get the image ID from the pod description
       run: |
-          IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod hmsconsole-56bd6849d8-94rll -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
+          IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
           # Display the image ID
           echo "Container Image ID: $IMAGE_ID"
