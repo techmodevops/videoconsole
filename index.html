@@ -1,0 +1,69 @@
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="styleSheet" href="styles.css" type="text/css" media="screen">
+
+<script src="adapter.js"></script>
+<script src="conference.js"></script>
+<script src="participant.js"></script>
+<script src="kurento-utils.js"></script>
+</head>
+<body>
+	<div id="container">
+		<div id="wrapper">
+			<div id="join" class="animate join">
+				<h1>Join a Room</h1>
+				<form onsubmit="register(); return false;" accept-charset="UTF-8">
+					<p>
+						<input type="text" name="name" value="" id="name"
+							placeholder="Username" required>
+					</p>
+					<p>
+						<input type="text" name="room" value="" id="roomName"
+							placeholder="Room" required>
+					</p>
+					<p class="submit">
+						<input type="submit" name="commit" value="Join!">
+					</p>
+				</form>
+			</div>
+			<div id="room" style="display: none;">
+				<h2 id="room-header"></h2>
+				<div id="participants"></div>
+					<input type="button" id="button-leave" onclick="toggleParticipantInput();" value="ADD Participant">
+    <div id="email-invite-container" style="display: none;">
+    <textarea id="participant-emails" placeholder="Enter participant Emails (separate by commas)"
+        style="width: 80%; min-width: 200px; max-width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; resize: vertical; margin-top:10px;"></textarea>
+    <button id="send-invite" onclick="sendRoomInvitation()"
+        style="padding: 8px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Send Invitation
+    </button>
+	 <button id="start" onclick="startRecording()" style="padding: 8px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        start
+        </button>
+        <button id="start" onclick="stopRecording()" style="padding: 8px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        stop
+        </button>
+</div>
+
+				<input type="button" id="button-leave" onmouseup="leaveRoom();"
+					value="Leave room">
+			</div>
+		</div>
+	</div>
+
+    <script>
+        // Check if the roomName is passed as a query parameter in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomName = urlParams.get('roomName');
+
+        // If roomName exists in the URL, automatically populate the room name input and freeze it
+        if (roomName) {
+            document.getElementById('roomName').value = roomName;  // Set the value of the input field
+            document.getElementById('roomName').disabled = true;   // Disable the field (make it non-editable)
+        } else {
+            document.getElementById('roomName').disabled = false;  // Ensure the field is editable if no roomName in URL
+        }
+    </script>
+</body>
+</html>
