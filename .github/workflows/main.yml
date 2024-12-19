@@ -55,11 +55,29 @@ jobs:
     - name: Wait for 3 minutes
       run: sleep 60
 
-    - name: Get Pod Name
+    - name: Get Pod Name, Pod Status
       run: |
-          kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" > pod_name.txt
-          POD_NAME=$(cat pod_name.txt)
-          echo "Pod Name: $POD_NAME"
+          POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
+          POD_STATUS=$(kubectl --insecure-skip-tls-verify get pod $POD_NAME -n saas-dev -o jsonpath='{.status.phase}')
+          echo "Pod Name: $POD_NAME", Pod Status: $POD_STATUS"
+
+    - name: Verify application URL
+      run: |
+        echo "Verifying application URL: https://devvideomeeting.charznow.com/"
+        HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://devvideomeeting.charznow.com/)
+        if [[ "$HTTP_RESPONSE" -ne 200 ]]; then
+          echo "Application not accessible. HTTP response code: $HTTP_RESPONSE"
+          kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
+          exit 1
+        else
+          echo "Application is up and running with HTTP response code: $HTTP_RESPONSE"
+        fi
+
+    - name: Rollback if URL check failed
+      if: failure()  # This will trigger if the previous URL check fails (exit 1)
+      run: |
+        echo "Rolling back deployment due to application URL failure."
+        kubectl --insecure-skip-tls-verify rollout undo deployment hmsconsole -n saas-dev
 
     - name: Get the image ID from the pod description
       run: |
