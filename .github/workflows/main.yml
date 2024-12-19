@@ -66,6 +66,7 @@ jobs:
         HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://devvideomeeting.charznow.com/)
         if [[ "$HTTP_RESPONSE" -ne 200 ]]; then
           echo "Application not accessible. HTTP response code: $HTTP_RESPONSE"
+          echo "POD_NAME is: $POD_NAME"  # Debugging step to ensure POD_NAME is correct
           exit 1
         else
           echo "Application is up and running with HTTP response code: $HTTP_RESPONSE"
@@ -78,6 +79,7 @@ jobs:
       if: failure()  # This will trigger if the previous URL check fails (exit 1)
       run: |
         echo "Rolling back deployment due to application URL failure."
+        echo "POD_NAME is: $POD_NAME"  # Debugging step to ensure POD_NAME is correct
         kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
         kubectl --insecure-skip-tls-verify rollout undo deployment hmsconsole -n saas-dev
     
