@@ -45,7 +45,6 @@ jobs:
       run: |
         mkdir ${HOME}/.kube
         echo "${{ secrets.DEV_KUBE_CONFIG }}" | base64 --decode > ${HOME}/.kube/config
-        cat ${HOME}/.kube/config
     
     - name: Deploy to dev Environment
       run: |
@@ -67,7 +66,6 @@ jobs:
         HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://devvideomeeting.charznow.com/)
         if [[ "$HTTP_RESPONSE" -ne 200 ]]; then
           echo "Application not accessible. HTTP response code: $HTTP_RESPONSE"
-          kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
           exit 1
         else
           echo "Application is up and running with HTTP response code: $HTTP_RESPONSE"
@@ -76,21 +74,24 @@ jobs:
           echo "Container Image ID: $IMAGE_ID"
         fi
 
-    # - name: Rollback if URL check failed
-    #   if: failure()  # This will trigger if the previous URL check fails (exit 1)
-    #   run: |
-    #     echo "Rolling back deployment due to application URL failure."
-    #     kubectl --insecure-skip-tls-verify rollout undo deployment hmsconsole -n saas-dev
+    - name: Rollback if URL check failed
+      if: failure()  # This will trigger if the previous URL check fails (exit 1)
+      run: |
+        echo "Rolling back deployment due to application URL failure."
+        kubectl --insecure-skip-tls-verify rollout undo deployment hmsconsole -n saas-dev
     
-    # - name: Wait for 1 minute
-    #   run: sleep 60
+    - name: Wait for 1 minute
+      if: failure()
+      run: sleep 60
   
-    # - name: Get Pod Name
-    #   run: |
-    #       ROLLBACK_POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
+    - name: Get Pod Name
+      if: failure()
+      run: |
+          ROLLBACK_POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
     
-    # - name: Get the image ID from the pod description
-    #   run: |
-    #       IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $ROLLBACK_POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
-    #       # Display the image ID
-    #       echo "Container Image ID: $IMAGE_ID"
+    - name: Get the image ID from the pod description
+      if: failure()
+      run: |
+          IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $ROLLBACK_POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
+          # Display the image ID
+          echo "Container Image ID: $IMAGE_ID"
