@@ -59,7 +59,6 @@ jobs:
           POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
           POD_STATUS=$(kubectl --insecure-skip-tls-verify get pod $POD_NAME -n saas-dev -o jsonpath='{.status.phase}')
           echo "Pod Name: $POD_NAME", "Pod Status: $POD_STATUS"
-          kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
 
     - name: Verify application URL
       run: |
@@ -67,8 +66,6 @@ jobs:
         HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://devvideomeeting.charznow.com/)
         if [[ "$HTTP_RESPONSE" -ne 200 ]]; then
           echo "Application not accessible. HTTP response code: $HTTP_RESPONSE"
-          POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
-          echo "Pod Name: $POD_NAME"
           exit 1
         else
           echo "Application is up and running with HTTP response code: $HTTP_RESPONSE"
@@ -76,6 +73,13 @@ jobs:
           # Display the image ID
           echo "Container Image ID: $IMAGE_ID"
         fi
+
+    - name: Verify the logs
+      if: failure()  # This will trigger if the previous URL check fails (exit 1)
+      run: |
+          POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
+          echo "Pod Name: $POD_NAME"
+          kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
 
     - name: Rollback if URL check failed
       if: failure()  # This will trigger if the previous URL check fails (exit 1)
