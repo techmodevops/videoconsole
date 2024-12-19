@@ -30,3 +30,14 @@ jobs:
     - name: Verify connection (list Kubernetes nodes)
       run: |
           kubectl --insecure-skip-tls-verify get pods -n saas-dev
+          
+    - name: Get Pod Name
+      run: |
+          kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=hmsconsole -o custom-columns=":metadata.name" > pod_name.txt
+          POD_NAME=$(cat pod_name.txt)
+          echo "Pod Name: $POD_NAME"
+          echo "POD_NAME=$POD_NAME" >> $GITHUB_ENV
+    
+    - name: Describe Pod
+      run: |
+          kubectl --insecure-skip-tls-verify describe pod ${{ env.POD_NAME }} -n saas-dev
