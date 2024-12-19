@@ -33,7 +33,7 @@ jobs:
           
     - name: Get Pod Name
       run: |
-          kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=hmsconsole -o custom-columns=":metadata.name" > pod_name.txt
+          kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" > pod_name.txt
           POD_NAME=$(cat pod_name.txt)
           echo "Pod Name: $POD_NAME"
           echo "POD_NAME=$POD_NAME" >> $GITHUB_ENV
