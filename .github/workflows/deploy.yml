@@ -1,0 +1,32 @@
+
+name: Deploy to Dev Environment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+     # Step 2: Set up kubectl
+    - name: Set up kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"  # Replace with the desired version
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        kubectl version --client
+    
+    - name: Create kubeconfig
+      run: |
+        mkdir ${HOME}/.kube
+        echo "${{ secrets.UAT_KUBE_CONFIG }}" | base64 --decode > ${HOME}/.kube/config
+        cat ${HOME}/.kube/config
+
+      # Step 4: Verify the Kubernetes connection by listing nodes
+    - name: Verify connection (list Kubernetes nodes)
+      run: |
+          kubectl --insecure-skip-tls-verify get pods -n saas-dev
