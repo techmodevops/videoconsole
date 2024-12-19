@@ -52,8 +52,8 @@ jobs:
           sed -i "s|\${COMMIT_ID}|$COMMIT_ID|g" k8s/dev_deployment.yml
           kubectl --insecure-skip-tls-verify apply -f k8s/dev_deployment.yml
               
-    - name: Wait for 3 minutes
-      run: sleep 60
+    - name: Wait for 1 minute
+      run: sleep 40
 
     - name: Get Pod Name, Pod Status
       run: |
@@ -67,7 +67,7 @@ jobs:
         HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://devvideomeeting.charznow.com/)
         if [[ "$HTTP_RESPONSE" -ne 200 ]]; then
           echo "Application not accessible. HTTP response code: $HTTP_RESPONSE"
-          kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
+          kubectl --insecure-skip-tls-verify logs $POD_NAME --tail=150 $POD_NAME -n saas-dev
           exit 1
         else
           echo "Application is up and running with HTTP response code: $HTTP_RESPONSE"
@@ -78,7 +78,10 @@ jobs:
       run: |
         echo "Rolling back deployment due to application URL failure."
         kubectl --insecure-skip-tls-verify rollout undo deployment hmsconsole -n saas-dev
-
+    
+    - name: Wait for 1 minute
+      run: sleep 60
+    
     - name: Get the image ID from the pod description
       run: |
           IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
