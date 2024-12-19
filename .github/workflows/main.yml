@@ -59,7 +59,7 @@ jobs:
       run: |
           POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
           POD_STATUS=$(kubectl --insecure-skip-tls-verify get pod $POD_NAME -n saas-dev -o jsonpath='{.status.phase}')
-          echo "Pod Name: $POD_NAME", Pod Status: $POD_STATUS"
+          echo "Pod Name: $POD_NAME", "Pod Status: $POD_STATUS"
 
     - name: Verify application URL
       run: |
