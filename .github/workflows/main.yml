@@ -51,8 +51,8 @@ jobs:
           sed -i "s|\${COMMIT_ID}|$COMMIT_ID|g" k8s/dev_deployment.yml
           kubectl --insecure-skip-tls-verify apply -f k8s/dev_deployment.yml
               
-    - name: Wait for 1 minute
-      run: sleep 40
+    - name: Wait for 30 secs
+      run: sleep 30
 
     - name: Get Pod Name, Pod Status
       run: |
@@ -78,11 +78,12 @@ jobs:
       if: failure()  # This will trigger if the previous URL check fails (exit 1)
       run: |
         echo "Rolling back deployment due to application URL failure."
+        kubectl --insecure-skip-tls-verify logs --tail=150 $POD_NAME -n saas-dev
         kubectl --insecure-skip-tls-verify rollout undo deployment hmsconsole -n saas-dev
     
-    - name: Wait for 1 minute
+    - name: Wait for 30 secs
       if: failure()
-      run: sleep 60
+      run: sleep 30
   
     - name: Get Pod Name
       if: failure()
