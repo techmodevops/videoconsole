@@ -23,7 +23,7 @@ jobs:
     - name: Create kubeconfig
       run: |
         mkdir ${HOME}/.kube
-        echo "${{ secrets.UAT_KUBE_CONFIG }}" | base64 --decode > ${HOME}/.kube/config
+        echo "${{ secrets.DEV_KUBE_CONFIG }}" | base64 --decode > ${HOME}/.kube/config
         cat ${HOME}/.kube/config
 
       # Step 4: Verify the Kubernetes connection by listing nodes
