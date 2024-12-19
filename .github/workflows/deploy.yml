@@ -1,0 +1,39 @@
+
+name: Deploy to Dev Environment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+     # Step 2: Set up kubectl
+    - name: Set up kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"  # Replace with the desired version
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        kubectl version --client
+    
+    - name: Create kubeconfig
+      run: |
+        mkdir ${HOME}/.kube
+        echo "${{ secrets.DEV_KUBE_CONFIG }}" | base64 --decode > ${HOME}/.kube/config
+        cat ${HOME}/.kube/config
+
+    - name: Get Pod Name
+      run: |
+          kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" > pod_name.txt
+          POD_NAME=$(cat pod_name.txt)
+          echo "Pod Name: $POD_NAME"
+    
+    - name: Get the image ID from the pod description
+      run: |
+          IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod hmsconsole-56bd6849d8-94rll -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
+          # Display the image ID
+          echo "Container Image ID: $IMAGE_ID"
