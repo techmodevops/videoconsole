@@ -26,11 +26,6 @@ jobs:
         echo "${{ secrets.DEV_KUBE_CONFIG }}" | base64 --decode > ${HOME}/.kube/config
         cat ${HOME}/.kube/config
 
-      # Step 4: Verify the Kubernetes connection by listing nodes
-    - name: Verify connection (list Kubernetes nodes)
-      run: |
-          kubectl --insecure-skip-tls-verify get pods -n saas-dev
-          
     - name: Get Pod Name
       run: |
           kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" > pod_name.txt
