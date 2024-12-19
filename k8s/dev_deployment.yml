@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: hmsconsole
-        image: techmodevops/test-repo:video-console-cdb2c42
+        image: techmodevops/test-repo:video-console-${COMMIT_ID}
         ports:
         - containerPort: 80
       imagePullSecrets:
