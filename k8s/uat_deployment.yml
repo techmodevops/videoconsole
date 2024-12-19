@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hmsconsole
+  namespace: saas-dev
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: hmsconsole
+  template:
+    metadata:
+      labels:
+        app: hmsconsole
+    spec:
+      containers:
+      - name: hmsconsole
+        image: techmodevops/test-repo:video-console-cdb2c42
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: dockerhub-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hmsconsole
+  namespace: saas-dev
+  labels:
+    app: hmsconsole
+spec:
+  type: NodePort
+  ports:
+  - name: http-port
+    port: 80
+    targetPort: 80
+    nodePort: 30073
+    protocol: TCP
+  selector:
+    app: hmsconsole
