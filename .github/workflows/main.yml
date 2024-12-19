@@ -71,6 +71,9 @@ jobs:
           exit 1
         else
           echo "Application is up and running with HTTP response code: $HTTP_RESPONSE"
+          IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
+          # Display the image ID
+          echo "Container Image ID: $IMAGE_ID"
         fi
 
     # - name: Rollback if URL check failed
@@ -82,12 +85,12 @@ jobs:
     # - name: Wait for 1 minute
     #   run: sleep 60
   
-    - name: Get Pod Name
-      run: |
-          ROLLBACK_POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
+    # - name: Get Pod Name
+    #   run: |
+    #       ROLLBACK_POD_NAME=$(kubectl --insecure-skip-tls-verify get pods -n saas-dev --selector=app=hmsconsole -o custom-columns=":metadata.name" | head -n 2)
     
-    - name: Get the image ID from the pod description
-      run: |
-          IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $ROLLBACK_POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
-          # Display the image ID
-          echo "Container Image ID: $IMAGE_ID"
+    # - name: Get the image ID from the pod description
+    #   run: |
+    #       IMAGE_ID=$(kubectl --insecure-skip-tls-verify describe pod $ROLLBACK_POD_NAME -n saas-dev | grep "techmodevops/test-repo:video-console" | awk '{print $2}')
+    #       # Display the image ID
+    #       echo "Container Image ID: $IMAGE_ID"
