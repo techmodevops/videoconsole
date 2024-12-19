@@ -37,6 +37,8 @@ jobs:
           POD_NAME=$(cat pod_name.txt)
           echo "Pod Name: $POD_NAME"
     
-    - name: Describe Pod
+    - name: Get the image ID from the pod description
       run: |
-          kubectl --insecure-skip-tls-verify describe pod $POD_NAME -n saas-dev
+          IMAGE_ID=$(kubectl describe pod $POD_NAME -n saas-dev | grep "Image ID" | awk '{print $3}')
+          # Display the image ID
+          echo "Container Image ID: $IMAGE_ID"
